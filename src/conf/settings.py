@@ -38,6 +38,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_extensions',
+
+    'easy_thumbnails',
+
+    'apps.users',
+    'apps.common',
+    'apps.chats',
+    'apps.posts',
+    'apps.news',
+    'apps.social_auth',
+    'apps.dashboard',
 ]
 
 MIDDLEWARE = [
@@ -79,8 +90,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.getenv('DB_NAME', 'social_network_db'),
         'USER': os.getenv('DB_USER', 'postgres'),
-        'PASSWORD': os.getenv('PASSWORD', '12345'),
-        'HOST': os.getenv('HOST', 'localhost')
+        'PASSWORD': os.getenv('DB_PASSWORD', '12345'),
+        'HOST': os.getenv('DB_HOST', 'localhost')
     }
 }
 
@@ -121,3 +132,17 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_DIR = os.path.join(BASE_DIR, 'static')
+STATICFILES_DIRS = [STATIC_DIR]
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+AUTH_USER_MODEL = 'users.User'
+
+THUMBNAIL_ALIASES = {
+    '': {
+        'avatar': {'crop': 'smart', 'size': (300, 300)},
+        'post_preview': {'crop': 'smart', 'size': (400, 400)},
+    },
+}

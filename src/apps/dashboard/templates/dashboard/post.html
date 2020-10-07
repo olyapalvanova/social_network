@@ -1,0 +1,19 @@
+{% extends 'dashboard/base.html' %}
+
+{% block body %}
+
+    {% for post in posts %}
+    <hr class="featurette-divider">
+    <div class="row featurette">
+      <div class="col-md-7 order-md-2">
+          <h2 class="featurette-heading"><a href="#" style="color:#000000; text-decoration:none">{{ post.text }}</a></h2>
+      </div>
+        {% if post.image %}
+      <div class="col-md-5 order-md-1">
+       <img width="300" height="300" src="{{ post.image.url }}" class="rounded float-left" alt="Responsive image" width="100%" height="100%">
+      </div>
+    {% endif %}
+    </div>
+        <div class="date">{{ post.date }} </div>
+    {% endfor %}
+{% endblock %}

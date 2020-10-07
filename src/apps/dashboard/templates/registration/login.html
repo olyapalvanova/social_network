@@ -1,0 +1,28 @@
+{% extends 'dashboard/base.html' %}
+
+
+{% block body %}
+ <h1>Login</h1>
+    {% if form.errors %}
+  <p>Your email and password didn't match. Please try again.</p>
+{% endif %}
+
+{% if next %}
+  {% if user.is_authenticated %}
+    <p>Your account doesn't have access to this page. To proceed,
+    please login with an account that has access.</p>
+  {% else %}
+    <p>Please login to see this page.</p>
+  {% endif %}
+{% endif %}
+
+
+{% block content %}
+<form method="post">
+{% csrf_token %}
+{{ form.as_p }}
+    <a href="{% url 'profile' user.id %}" class="button">Login</a>
+</form>
+{% endblock %}
+
+{% endblock %}
