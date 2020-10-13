@@ -1,11 +1,9 @@
 {% extends 'dashboard/base.html' %}
 
 {% block body %}
-    <h1>Update</h1>
-    <h1>Update</h1>
-   <form action="{% url 'update' %}" method="post">
+   <form action="{% url 'dashboard:update' %}" method="post">
     {% csrf_token %}
-    {{ user.as_p }}
+    {{ form.as_p }}
     <input type="submit" value="Submit" />
 </form>
 {% endblock %}

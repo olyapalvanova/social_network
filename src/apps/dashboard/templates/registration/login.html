@@ -18,11 +18,14 @@
 
 
 {% block content %}
-<form method="post">
+
+<form method="post" action="{% url 'login' %}">
 {% csrf_token %}
-{{ form.as_p }}
-    <a href="{% url 'profile' user.id %}" class="button">Login</a>
+    {{ form.as_p }}
+<input type="submit" value="login">
 </form>
+
+
 {% endblock %}
 
 {% endblock %}

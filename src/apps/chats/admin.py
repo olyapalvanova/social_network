@@ -3,7 +3,8 @@ from .models import Message, Channel
 
 
 class ChannelAdmin(admin.ModelAdmin):
-    list_display = ('user', 'friend')
+    list_display = ('notice',)
+    filter_horizontal = ('users',)
 
 
 class MassageAdmin(admin.ModelAdmin):

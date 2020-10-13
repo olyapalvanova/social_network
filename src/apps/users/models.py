@@ -37,7 +37,7 @@ class UserManager(BaseUserManager):
 
 class User(AbstractUser):
     email = models.EmailField(_('email address'), blank=True, unique=True)
-    birth_date = models.DateField(null=True, blank=True, default='')
+    birth_date = models.DateField(null=True, blank=True)
     city = models.CharField(max_length=100, null=True, blank=True, default='')
     school = models.CharField(max_length=100, null=True, blank=True,
                               default='')

@@ -146,3 +146,11 @@ THUMBNAIL_ALIASES = {
         'post_preview': {'crop': 'smart', 'size': (400, 400)},
     },
 }
+
+LOGIN_REDIRECT_URL = '/news/'
+
+POSTS_PER_PAGE = 2
+MESSAGE_PER_PAGE = 15
+
+LOGIN_URL = '/login/'
+REDIRECT_FIELD_NAME = 'login'
