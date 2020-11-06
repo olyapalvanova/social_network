@@ -6,13 +6,14 @@ from .models import Friend, User
 
 
 class FriendsAdmin(admin.ModelAdmin):
-    list_display = ('user', 'friend')
+    list_display = ('added', 'permission')
+    filter_horizontal = ('users',)
 
 
 class ExtendedUserAdmin(UserAdmin):
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
-        (_('Personal info'), {'fields': ('first_name', 'last_name', 'image')}),
+        (_('Personal info'), {'fields': ('first_name', 'last_name', 'image', 'birth_date')}),
         (_('Permissions'), {
             'fields': ('is_active', 'is_staff', 'is_superuser', 'groups',
                        'user_permissions'),

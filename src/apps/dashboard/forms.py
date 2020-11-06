@@ -2,6 +2,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 
 from apps.users.models import User
+from apps.chats.models import Message
 
 
 class UserForm(forms.ModelForm):
@@ -21,3 +22,15 @@ class UserLoginForm(forms.Form):
         if not User.objects.filter(email=email).exists():
             raise ValidationError('This email does not exist.')
         return email
+
+
+class MessageForm(forms.ModelForm):
+    class Meta:
+        model = Message
+        fields = ['text', 'channel']
+
+
+class MessageFormFriend(forms.ModelForm):
+    class Meta:
+        model = Message
+        fields = ['text']

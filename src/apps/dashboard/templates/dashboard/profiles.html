@@ -1,0 +1,79 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block body %}
+    <div class= "search-bar w3layouts-newsletter">
+    <h3 class="sear_head editContent">Search</h3>
+    <form action="" method="get" class="d-flex editContent">
+        <input type="search" placeholder="Write name..." name="name"class="form-control" required="">
+        <button type="submit" class="btn1 btn">
+            <span class="fa fa-search" aria-hidden="true"></span>
+        </button>
+    </form>
+    </div>
+    {% for profile in profiles %}
+        <main role="main">
+        <div class="my-3 p-3 rounded shadow-sm user-div target"  data-user-id="{{ profile.id }}">
+        <div class="media text-muted pt-3">
+        <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+                        <strong class="d-block text-gray-dark">
+                <img width="100" height="100" src="{% get_media_prefix %}{{ profile.image|default:"/avatars/unnamed.png" }}" class="rounded float-left" alt="Responsive image">
+             </strong>
+             <strong class="d-block text-gray-dark">
+                        <a href="{% url 'dashboard:profile' profile.id %}"
+                           style="color:#000000; text-decoration:none">{{ profile.first_name }} {{ profile.last_name }}</a>
+                    </strong>
+            {% if not profile.is_friend %}
+            <p><a class="btn btn-secondary" href="{% url 'dashboard:friend_add' profile.id %}" role="button">Add friend &raquo;</a></p>&nbsp;
+            {% else %}
+              <p><a class="btn btn-secondary" href="{% url 'dashboard:friend_delete' profile.id %}" role="button">Delete </a></p> &nbsp;
+                {% if not profile.is_friend_blocked %}
+                   <p><a class="btn btn-secondary" href="{% url 'dashboard:friend_block' profile.id %}" role="button">Block </a></p> &nbsp;
+                {% else %}
+                    <p><a class="btn btn-secondary" href="{% url 'dashboard:friend_unblock' profile.id %}" role="button">Unblock </a></p> &nbsp;
+                 {% endif %}
+            {% endif %}
+            </p>
+           </div>
+        </div>
+        </main>
+    {% endfor %}
+    <button value="submit" id="button">Create</button>
+    <script>
+        var usersAddedToChannel = [];
+
+        $(".target").click(function () {
+            var userId = $(this).data("user-id");
+            var index = usersAddedToChannel.indexOf(userId);
+            if (index !== -1) {
+                usersAddedToChannel.splice(index, 1);
+                $(this).removeClass("user-div-selected");
+            }
+            else {
+                $(this).addClass("user-div-selected");
+                usersAddedToChannel.push(userId);
+            }
+        });
+        $("#button").click(function () {
+            $.ajax({
+                type: 'post',
+                url: '{% url 'dashboard:create_group_chat' %}',
+                data: JSON.stringify({
+                    user_list: usersAddedToChannel,
+                }),
+                headers: {
+                    'Content-Type': "application/json; charset=UTF-8",
+                    "X-CSRFToken": csrftoken,
+                },
+                success: function (responseChannelGroup) {
+                    window.location.href =
+                        '{% url "dashboard:dialog" 0 %}'.replace('0', responseChannelGroup.channel_id)
+                },
+                error: function (response) {
+                    console.log(response);
+                    alert('server error');
+                },
+            })
+        })
+    </script>
+{% endblock %}

@@ -1,6 +1,39 @@
 <html lang="en">
   <head>
       {% block head %}
+          <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+          <script>
+              function getCookie(name) {
+                  var cookieValue = null;
+                  if (document.cookie && document.cookie !== '') {
+                      var cookies = document.cookie.split(';');
+                      for (var i = 0; i < cookies.length; i++) {
+                          var cookie = cookies[i].trim();
+                          // Does this cookie string begin with the name we want?
+                          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                              break;
+                          }
+                      }
+                  }
+                  return cookieValue;
+              }
+
+              var csrftoken = getCookie('csrftoken');
+
+              function csrfSafeMethod(method) {
+                  // these HTTP methods do not require CSRF protection
+                  return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+              }
+
+              $.ajaxSetup({
+                  beforeSend: function (xhr, settings) {
+                      if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                          xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                      }
+                  }
+              });
+     </script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
@@ -16,6 +49,8 @@
         {% if request.path == profile_url %}Dialogs | Social Network{% endif %}
         {% url 'dashboard:posts'  as profile_url %}
         {% if request.path == profile_url %}Posts | Social Network{% endif %}
+        {% url 'dashboard:profiles'  as profile_url %}
+        {% if request.path == profile_url %}Users | Social Network{% endif %}
         {% url 'dashboard:settings'  as profile_url %}
         {% if request.path == profile_url %}Settings | Social Network{% endif %}
         {% url 'dashboard:update'  as profile_url %}
@@ -51,6 +86,12 @@
           margin: 10px 10px 20px 5px;
           color: #222222;
       }
+      .user-div:hover {
+          background: gray;
+      }
+      .user-div-selected {
+          background: gray;
+      }
     </style>
     <!-- Custom styles for this template -->
     <!-- <link href="starter-template.css" rel="stylesheet"> -->
@@ -66,7 +107,7 @@
 
           <div class="collapse navbar-collapse" id="navbarsExampleDefault">
             <ul class="navbar-nav mr-auto">
-                {% url 'dashboard:profile' user.id  as profile_url %} >
+                {% url 'dashboard:profile' user.id  as profile_url %}
                 <li class="nav-item">
                 <a class="nav-link {% if request.path == profile_url %}active{% endif %}" href="{{ profile_url }}">Profile <span class="sr-only">(current)</span></a>
               </li>
@@ -82,13 +123,17 @@
               <li class="nav-item">
                 <a class="nav-link {% if request.path == profile_url %}active{% endif %}" href="{{ profile_url }}">Posts</a>
               </li>
+                 {% url 'dashboard:profiles' as profile_url %}
+              <li class="nav-item">
+                <a class="nav-link {% if request.path == profile_url %}active{% endif %}" href="{{ profile_url }}">Profiles</a>
+              </li>
                 {% url 'dashboard:setting' as profile_url %}
               <li class="nav-item">
                 <a class="nav-link {% if request.path == profile_url %}active{% endif %}" href="{{ profile_url }}">Settings</a>
               </li>
             </ul>
             <form class="form-inline my-2 my-lg-0">
-              <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+              <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search" name="search">
               <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
             </form>
           </div>

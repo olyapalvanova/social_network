@@ -1,21 +1,37 @@
 from django.urls import path
 
-from .views import (
-    profile, dialogs, dialog, user_posts_list, posts, news, news_details,
-
-    setting, logout_user, update_profile, user_login
-)
+from . import views
 
 urlpatterns = [
-    path('login/', user_login, name='login'),
-    path('logout/', logout_user, name='logout'),
-    path('profiles/<int:id>/', profile, name='profile'),
-    path('profile/update/', update_profile, name='update'),
-    path('dialogs/', dialogs, name='dialogs'),
-    path('dialog/<int:id>/', dialog, name='dialog'),
-    path('users/<int:id>/posts/', user_posts_list, name='user_posts_list'),
-    path('posts/', posts, name='posts'),
-    path('news/', news, name='news'),
-    path('news/details', news_details, name='news_details'),
-    path('setting', setting, name='setting'),
+    path('login/', views.user_login, name='login'),
+    path('logout/', views.logout_user, name='logout'),
+    path('profiles/<int:id>/', views.profile, name='profile'),
+    path('profile/update/', views.update_profile, name='update'),
+    path('profiles/', views.profiles, name='profiles'),
+    path('dialogs/', views.dialogs, name='dialogs'),
+    path('dialogs/block/', views.dialogs_block, name='dialogs_block'),
+    path('dialog/block/<int:id>/', views.block_dialog, name='dialog_block'),
+    path('dialog/unblock/<int:id>', views.unblock_dialog, name='dialog_unblock'),
+    path('dialog/<int:id>/', views.dialog, name='dialog'),
+    path('dialog/send/', views.send_message, name='send_message'),
+    path('friend/dialog/<int:user_id>/', views.friend_dialog,
+         name='friend_dialog'),
+    path('dialog/group/create/', views.create_group_chat,
+         name='create_group_chat'),
+    path('friend/add/<int:user_id>/', views.friend_add, name='friend_add'),
+    path('friend/delete/<int:user_id>/', views.friend_delete,
+         name='friend_delete'),
+    path('friend/block/<int:user_id>/', views.friend_block,
+         name='friend_block'),
+    path('friend/unblock/<int:user_id>/', views.friend_unblock,
+         name='friend_unblock'),
+    path('new/channel/<int:user_id>', views.friend_dialog, name='new_channel'),
+    path('users/<int:id>/posts/', views.user_posts_list,
+         name='user_posts_list'),
+    path('posts/', views.posts, name='posts'),
+    path('news/', views.news, name='news'),
+    path('news/details', views.news_details, name='news_details'),
+    path('setting', views.setting, name='setting'),
+    path('api/channel-messages/<int:id>/', views.messages_api,
+         name='channel-messages-api'),
 ]

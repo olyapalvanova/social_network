@@ -2,7 +2,7 @@
 
 {% block body %}
     {% for channel in channels %}
-        <main role="main">
+        <main role="main" id="channel-wrapper-{{ channel.id }}">
         <div class="my-3 p-3 bg-white rounded shadow-sm">
         <div class="media text-muted pt-3">
         <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
@@ -22,10 +22,42 @@
             {% endif %}
         {% endfor %}
              </strong>
-            Text sms
+        {% if channel.blocked %}
+            <p><button class="btn btn-secondary" name="unblock" data-channel-id={{ channel.id }} role="button">Unblock</button></p>
+        {% else %}
+            <p><button class="btn btn-secondary" name="block" data-channel-id={{ channel.id }} role="button">Block</button></p>
+        {% endif %}
             </p>
            </div>
         </div>
         </main>
     {% endfor %}
+    {% if is_block %}
+    <a href="{% url 'dashboard:dialogs' %}" style="color: #999999" class="button">Show dialogs</a>
+    {% else %}
+    <a href="{% url 'dashboard:dialogs_block' %}" style="color: #999999" class="button">Show blocked dialogs</a>
+    {% endif %}
+
+    <script>
+    $("button[name='block']").click(function () {
+            var channelId = $(this).data("channel-id");
+    $.ajax({
+        type: 'post',
+        url: '{% url 'dashboard:dialog_block' 0 %}'.replace('0', channelId),
+        success: function (responseChannelBlock){
+           $('#channel-wrapper-'+channelId).remove()
+        }
+    })
+    })
+    $("button[name='unblock']").click(function (){
+        var channelId = $(this).data("channel-id");
+     $.ajax({
+        type: 'post',
+        url: '{% url 'dashboard:dialog_unblock' 0 %}'.replace('0', channelId),
+        success: function (responseChannelUnblock){
+           $('#channel-wrapper-'+channelId).remove()
+        }
+    })
+    })
+    </script>
 {% endblock %}

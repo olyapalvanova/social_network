@@ -24,9 +24,16 @@ class Channel(models.Model):
         else:
             return self.DEFAULT_GROUP_LOGO
 
+    @property
+    def channel_name(self):
+        name = ''
+        for i in self.users.all():
+            name += i.first_name + ' ' + i.last_name + ' '
+        return name
+
 
 class Message(models.Model):
     channel = models.ForeignKey(Channel, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     text = models.TextField()
-    read = models.BooleanField()
+    read = models.BooleanField(default=False)

@@ -3,7 +3,7 @@ from .models import Message, Channel
 
 
 class ChannelAdmin(admin.ModelAdmin):
-    list_display = ('notice',)
+    list_display = ('notice', 'channel_name')
     filter_horizontal = ('users',)
 
 
