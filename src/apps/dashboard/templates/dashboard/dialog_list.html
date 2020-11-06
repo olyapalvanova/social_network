@@ -1,23 +1,63 @@
 {% extends 'dashboard/base.html' %}
 
- {% block body %}
-     <main role="main">
-     <div class="my-3 p-3 bg-white rounded shadow-sm">
-    <h6 class="border-bottom border-gray pb-2 mb-0">Recent updates</h6>
-    <div class="media text-muted pt-3">
-      <svg class="bd-placeholder-img mr-2 rounded" width="100" height="100" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="Placeholder: 100x100"><title>Placeholder</title><rect width="100%" height="100%" fill="#6c757d"/><text x="50%" y="50%" fill="#6c757d" dy=".3em">100x100</text></svg>
-      <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
-          <strong class="d-block text-gray-dark"><a href="{% url 'dialog' %}"style="color:#000000; text-decoration:none">Name Last name</a></strong>
-          Text sms
-      </p>
-    </div>
-         <div class="media text-muted pt-3">
-      <svg class="bd-placeholder-img mr-2 rounded" width="100" height="100" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="Placeholder: 100x100"><title>Placeholder</title><rect width="100%" height="100%" fill="#6c757d"/><text x="50%" y="50%" fill="#6c757d" dy=".3em">100x100</text></svg>
-      <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
-          <strong class="d-block text-gray-dark"><a href="{% url 'dialog' %}"style="color:#000000; text-decoration:none">Name Last name</a></strong>
-          Text sms
-      </p>
-    </div>
-     </div>
-     </main>
+{% block body %}
+    {% for channel in channels %}
+        <main role="main" id="channel-wrapper-{{ channel.id }}">
+        <div class="my-3 p-3 bg-white rounded shadow-sm">
+        <div class="media text-muted pt-3">
+        <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+                        <strong class="d-block text-gray-dark">
+                <img width="100" height="100" src="{{ channel.logo }}" class="rounded float-left" alt="Responsive image" width="100%" height="100%">
+
+        {% for u in channel.users.all %}
+            {% if u != request.user %}
+{#                {% if u.image %}#}
+{#                <img width="100" height="100" src="{{ u.image.url }}" class="rounded float-left" alt="Responsive image" width="100%" height="100%">#}
+{#                 {% else %}#}
+{#                    <img width="100" height="100" src="#" class="rounded float-left" alt="Responsive image" width="100%" height="100%">#}
+{#                 {% endif %}#}
+                <a href="{% url 'dashboard:dialog' channel.id %}"
+                   style="color:#000000; text-decoration:none">{{ u }}
+                    &nbsp; </a>
+            {% endif %}
+        {% endfor %}
+             </strong>
+        {% if channel.blocked %}
+            <p><button class="btn btn-secondary" name="unblock" data-channel-id={{ channel.id }} role="button">Unblock</button></p>
+        {% else %}
+            <p><button class="btn btn-secondary" name="block" data-channel-id={{ channel.id }} role="button">Block</button></p>
+        {% endif %}
+            </p>
+           </div>
+        </div>
+        </main>
+    {% endfor %}
+    {% if is_block %}
+    <a href="{% url 'dashboard:dialogs' %}" style="color: #999999" class="button">Show dialogs</a>
+    {% else %}
+    <a href="{% url 'dashboard:dialogs_block' %}" style="color: #999999" class="button">Show blocked dialogs</a>
+    {% endif %}
+
+    <script>
+    $("button[name='block']").click(function () {
+            var channelId = $(this).data("channel-id");
+    $.ajax({
+        type: 'post',
+        url: '{% url 'dashboard:dialog_block' 0 %}'.replace('0', channelId),
+        success: function (responseChannelBlock){
+           $('#channel-wrapper-'+channelId).remove()
+        }
+    })
+    })
+    $("button[name='unblock']").click(function (){
+        var channelId = $(this).data("channel-id");
+     $.ajax({
+        type: 'post',
+        url: '{% url 'dashboard:dialog_unblock' 0 %}'.replace('0', channelId),
+        success: function (responseChannelUnblock){
+           $('#channel-wrapper-'+channelId).remove()
+        }
+    })
+    })
+    </script>
 {% endblock %}

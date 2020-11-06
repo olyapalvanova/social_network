@@ -37,7 +37,7 @@ class UserManager(BaseUserManager):
 
 class User(AbstractUser):
     email = models.EmailField(_('email address'), blank=True, unique=True)
-    birth_date = models.DateField(null=True, blank=True, default='')
+    birth_date = models.DateField(null=True, blank=True)
     city = models.CharField(max_length=100, null=True, blank=True, default='')
     school = models.CharField(max_length=100, null=True, blank=True,
                               default='')
@@ -63,14 +63,17 @@ class User(AbstractUser):
     objects = UserManager()
 
     def get_short_name(self):
+        if self.first_name and self.last_name:
+            return f'{self.first_name} {self.last_name} ({self.email})'
         return self.email
+
+    def __str__(self):
+        return self.get_short_name()
 
 
 class Friend(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE,
-                             related_name='user_friend')
-    friend = models.ForeignKey(User, on_delete=models.CASCADE,
-                               related_name='friend_friend')
-    date_added = models.DateField()
+    users = models.ManyToManyField(User, related_name='friends')
+    date_added = models.DateField(auto_now_add=True)
     added = models.ForeignKey(User, on_delete=models.CASCADE,
                               related_name='added_friend')
+    permission = models.BooleanField(default=False)

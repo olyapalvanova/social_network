@@ -1,23 +1,136 @@
 {% extends 'dashboard/base.html' %}
-
-
+{% load static %}
 
 {% block body %}
-    <div class="media text-muted pt-3">
-      <svg class="bd-placeholder-img mr-2 rounded" width="32" height="32" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="Placeholder: 32x32"><title>Placeholder</title><rect width="100%" height="100%" fill="#007bff"/><text x="50%" y="50%" fill="#007bff" dy=".3em">32x32</text></svg>
-      <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
-        Text sms
-      </p>
+
+    <div class="pagination">
+    <span class="step-links">
+        {% if page.has_previous %}
+            <a href="?page=1">&laquo; first</a>
+            <a href="?page={{ page.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ page.number }} of {{ page.paginator.num_pages }}.
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page.next_page_number }}">next</a>
+            <a href="?page={{ page.paginator.num_pages }}">last &raquo;</a>
+        {% endif %}
+    </span>
     </div>
-    <div class="media text-muted pt-3">
-      <svg class="bd-placeholder-img mr-2 rounded" width="32" height="32" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="Placeholder: 32x32"><title>Placeholder</title><rect width="100%" height="100%" fill="#e83e8c"/><text x="50%" y="50%" fill="#e83e8c" dy=".3em">32x32</text></svg>
-      <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
-        Text sms
-      </p>
+
+
+    <div id="messages">
+        {% for message in page %}
+            <div class="media text-muted pt-3">
+                <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+                    {% if message.user.image %}
+                        <img width="100" height="100" src="{{ message.user.image.avatar.url }}"
+                             class="rounded float-left" alt="Responsive image">
+                    {% else %}
+                        <img width="100" height="100"
+                             src="/media/avatars/unnamed.png"
+                             class="rounded float-left" alt="Responsive image">
+                    {% endif %}
+                    <strong class="d-block text-gray-dark">
+                        <a href="{% url 'dashboard:profile' message.user.id %}"
+                           style="color:#000000; text-decoration:none">{{ message.user }}</a>
+                    </strong>
+                    {{ message.text }}
+                </p>
+            </div>
+        {% endfor %}
     </div>
-    <label class="sr-only">Password</label>
-  <input class="form-control" required>
-  <div class="checkbox mb-3">
-  <button> <a href="#">Send</a> </button>
-  </div>
+    <form id="target">
+        {% csrf_token %}
+        <div id="message-status"></div>
+        <input type="text" name="text" class="form-control" required
+               id="message"/>
+        <div class="checkbox mb-3">
+            <input type="submit" value="Send"/>
+        </div>
+    </form>
+
+    <script>
+        var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
+
+         $("#target").submit(function (event) {
+            event.preventDefault();
+            if ($('#message').val().trim().length === 0) {
+                alert('Type a message');
+                return;
+            }
+            $.ajax({
+                type: 'post',
+                url: '{% url 'dashboard:send_message' %}',
+                data: JSON.stringify({
+                    text: $('#message').val(),
+                    channel: {{ channel_id }},
+                }),
+                headers: {
+                    'Content-Type': "application/json; charset=UTF-8",
+                    "X-CSRFToken": csrftoken,
+                },
+                success: function (responseMessage) {
+                    const newDiv = document.createElement("div");
+                        newDiv.classList.add("media");
+                        newDiv.classList.add("text-muted");
+                        newDiv.classList.add("pt-3");
+                    const newP = document.createElement("p");
+                        newP.classList.add("media-body");
+                        newP.classList.add("pb-3");
+                        newP.classList.add("mb-0");
+                        newP.classList.add("small");
+                        newP.classList.add("lh-125");
+                        newP.classList.add("border-bottom");
+                        newP.classList.add("border-gray");
+                    newDiv.appendChild(newP);
+                    const newImg = document.createElement("img");
+                        newImg.width = 100;
+                        newImg.height = 100;
+                        newImg.src = responseMessage.user.image;
+                        newImg.classList.add("rounded", "float-left");
+                        newImg.alt = "Responsive image";
+                    newP.appendChild(newImg);
+                    const newStrong = document.createElement("strong");
+                        newStrong.classList.add("d-block");
+                        newStrong.classList.add("text-gray-dark");
+                    newP.appendChild(newStrong);
+                    const newA = document.createElement("a");
+                        newA.href = '{% url "dashboard:profile" 0 %}'.replace('0', responseMessage.user.id);
+                        newA.style.color = "#000000";
+                        newA.style.textDecoration= "none";
+                        newA.text = responseMessage.user.email;
+                    newStrong.appendChild(newA);
+                    const userName = document.createTextNode(responseMessage.text);
+                    newP.appendChild(userName)
+
+                    $('#messages').append(newDiv);
+                    $('#target').trigger('reset');
+
+                    {#var send = '' +#}
+                    {#    '<div class="media text-muted pt-3">' +#}
+                    {#        '<p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">' +#}
+                    {#            '<img width="100" height="100" src="' + responseMessage.user.image + '"' +#}
+                    {#            'class="rounded float-left" alt="Responsive image" width="100%" height="100%">' +#}
+                    {#           '<strong class="d-block text-gray-dark"> <a href="{% url 'dashboard:profile' user.id %}" style="color:#000000;text-decoration:none">' +responseMessage.user.email+ '</a>' +#}
+                    {#           '</strong>'+ responseMessage.text +'</p></div>'#}
+{##}
+{#                    $(addElement).appendTo("#messages")#}
+{#                    jQuery('#target')[0].reset()#}
+
+
+                },
+                error: function (response) {
+                   console.log(response);
+                   alert('server error');
+                },
+            });
+        });
+
+    </script>
+
 {% endblock %}
+

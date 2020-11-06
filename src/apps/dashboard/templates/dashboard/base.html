@@ -1,30 +1,69 @@
 <html lang="en">
   <head>
       {% block head %}
+          <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+          <script>
+              function getCookie(name) {
+                  var cookieValue = null;
+                  if (document.cookie && document.cookie !== '') {
+                      var cookies = document.cookie.split(';');
+                      for (var i = 0; i < cookies.length; i++) {
+                          var cookie = cookies[i].trim();
+                          // Does this cookie string begin with the name we want?
+                          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                              break;
+                          }
+                      }
+                  }
+                  return cookieValue;
+              }
+
+              var csrftoken = getCookie('csrftoken');
+
+              function csrfSafeMethod(method) {
+                  // these HTTP methods do not require CSRF protection
+                  return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+              }
+
+              $.ajaxSetup({
+                  beforeSend: function (xhr, settings) {
+                      if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                          xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                      }
+                  }
+              });
+     </script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
     <meta name="generator" content="Jekyll v4.1.1">
-    <title>Starter Template · Bootstrap</title>
+       {% url 'dashboard:profile' user.id  as profile_url %}
+    <title>{% if request.path == profile_url %}Profile | Social Network{% endif %}
+        {% url 'dashboard:news'  as profile_url %}
+        {% if request.path == profile_url %}News | Social Network{% endif %}
+        {% url 'dashboard:news_details'  as profile_url %}
+        {% if request.path == profile_url %}News | Social Network{% endif %}
+        {% url 'dashboard:dialog_list'  as profile_url %}
+        {% if request.path == profile_url %}Dialogs | Social Network{% endif %}
+        {% url 'dashboard:posts'  as profile_url %}
+        {% if request.path == profile_url %}Posts | Social Network{% endif %}
+        {% url 'dashboard:profiles'  as profile_url %}
+        {% if request.path == profile_url %}Users | Social Network{% endif %}
+        {% url 'dashboard:settings'  as profile_url %}
+        {% if request.path == profile_url %}Settings | Social Network{% endif %}
+        {% url 'dashboard:update'  as profile_url %}
+        {% if request.path == profile_url %}Update | Social Network{% endif %}
+        {% url 'dashboard:dialog' channel.id  as profile_url %}
+        {% if request.path == profile_url %}Messages | Social Network{% endif %}
+        {% url 'dashboard:user_posts_list' user.id  as profile_url %}
+        {% if request.path == profile_url %}Your posts | Social Network{% endif %}</title>
       <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
 
     <link rel="canonical" href="https://getbootstrap.com/docs/4.5/examples/starter-template/">
 
-    <!-- Bootstrap core CSS -->
-<!-- <link href="/docs/4.5/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
--->
-    <!-- Favicons -->
-<!--<link rel="apple-touch-icon" href="/docs/4.5/assets/img/favicons/apple-touch-icon.png" sizes="180x180">
-<link rel="icon" href="/docs/4.5/assets/img/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
-<link rel="icon" href="/docs/4.5/assets/img/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
-<link rel="manifest" href="/docs/4.5/assets/img/favicons/manifest.json">
-<link rel="mask-icon" href="/docs/4.5/assets/img/favicons/safari-pinned-tab.svg" color="#563d7c">
-<link rel="icon" href="/docs/4.5/assets/img/favicons/favicon.ico">
-<meta name="msapplication-config" content="/docs/4.5/assets/img/favicons/browserconfig.xml">
-<meta name="theme-color" content="#563d7c">
--->
 
     <style>
       .bd-placeholder-img {
@@ -47,6 +86,12 @@
           margin: 10px 10px 20px 5px;
           color: #222222;
       }
+      .user-div:hover {
+          background: gray;
+      }
+      .user-div-selected {
+          background: gray;
+      }
     </style>
     <!-- Custom styles for this template -->
     <!-- <link href="starter-template.css" rel="stylesheet"> -->
@@ -55,36 +100,40 @@
   <body>
   {% block header %}
       <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-          <a class="navbar-brand" href="{% url 'login' %}">Logout</a>
+          <a class="navbar-brand" href="{% url 'dashboard:logout' %}">Logout</a>
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
 
           <div class="collapse navbar-collapse" id="navbarsExampleDefault">
             <ul class="navbar-nav mr-auto">
-                {% url 'profile' user.id  as profile_url %} > {{ user.id }}
+                {% url 'dashboard:profile' user.id  as profile_url %}
                 <li class="nav-item">
                 <a class="nav-link {% if request.path == profile_url %}active{% endif %}" href="{{ profile_url }}">Profile <span class="sr-only">(current)</span></a>
               </li>
-                {% url 'news_list' as profile_url %}
+                {% url 'dashboard:news' as profile_url %}
               <li class="nav-item ">
                 <a class="nav-link {% if request.path == profile_url %}active{% endif %}" href="{{ profile_url }}">News <span class="sr-only">(current)</span></a>
               </li>
-                {% url 'dialog_list' as profile_url %}
+                {% url 'dashboard:dialogs' as profile_url %}
               <li class="nav-item">
                 <a class="nav-link {% if request.path == profile_url %}active{% endif %}" href="{{ profile_url }}">Messages <span class="sr-only">(current)</span></a>
               </li>
-                {% url 'posts' as profile_url %}
+                {% url 'dashboard:posts' as profile_url %}
               <li class="nav-item">
                 <a class="nav-link {% if request.path == profile_url %}active{% endif %}" href="{{ profile_url }}">Posts</a>
               </li>
-                {% url 'setting' as profile_url %}
+                 {% url 'dashboard:profiles' as profile_url %}
+              <li class="nav-item">
+                <a class="nav-link {% if request.path == profile_url %}active{% endif %}" href="{{ profile_url }}">Profiles</a>
+              </li>
+                {% url 'dashboard:setting' as profile_url %}
               <li class="nav-item">
                 <a class="nav-link {% if request.path == profile_url %}active{% endif %}" href="{{ profile_url }}">Settings</a>
               </li>
             </ul>
             <form class="form-inline my-2 my-lg-0">
-              <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+              <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search" name="search">
               <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
             </form>
           </div>
