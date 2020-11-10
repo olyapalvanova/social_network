@@ -29,7 +29,9 @@ def user_login(request):
     else:
         form = UserLoginForm()
 
-    return render(request, 'registration/login.html', context={'form': form})
+    return render(request, 'registration/login.html', context={
+        'form': form,
+        'site_title': 'Login | Social Network'})
 
 
 def logout_user(request):
@@ -40,17 +42,20 @@ def logout_user(request):
 @login_required
 def profile(request, id):
     user = User.objects.annotate(is_friend=Exists(
-        Friend.objects.filter(id__in=request.user.friends.values_list('id'),
-                              users__id=OuterRef('id')))).get(id=id)
+        Friend.objects.filter(
+            id__in=request.user.friends.values_list('id'),
+            users__id=OuterRef('id')))
+    ).get(id=id)
     friends = request.user.friends.all()
     return render(request, 'dashboard/profile.html',
-                  {'account': user, 'friends': friends
+                  {'account': user, 'friends': friends,
+                   'site_title': 'Profile | Social Network'
                    })
 
 
 @login_required
 def friend_dialog(request, user_id):
-    channel = Channel.objects.annotate(total_users=Count('users')). \
+    channel = Channel.objects.annotate(total_users=Count('users')).\
         filter(users__id=request.user.id).filter(users__id=user_id). \
         filter(total_users=2).first()
     if channel:
@@ -69,10 +74,14 @@ def friend_dialog(request, user_id):
             message.save()
             return redirect('dashboard:dialog', id=channel.id)
         return render(request, 'dashboard/new_channel.html',
-                      {'form': form, 'id': user_id})
+                      {'form': form,
+                       'id': user_id,
+                       'site_title': 'Dialog | Social Network'})
     form = MessageFormFriend()
     return render(request, 'dashboard/new_channel.html',
-                  {'form': form, 'id': user_id})
+                  {'form': form,
+                   'id': user_id,
+                   'site_title': 'Dialog | Social Network'})
 
 
 @login_required
@@ -82,9 +91,13 @@ def update_profile(request):
         if form.is_valid():
             form.save()
             return redirect('dashboard:profile', id=request.user.id)
-        return render(request, 'dashboard/update.html', {'form': form})
+        return render(request, 'dashboard/update.html', {
+            'form': form,
+            'site_title': 'Profile | Social Network'})
     form = UserForm(instance=request.user)
-    return render(request, 'dashboard/update.html', {'form': form})
+    return render(request, 'dashboard/update.html', {
+        'form': form,
+        'site_title': 'Update | Social Network'})
 
 
 @login_required
@@ -93,7 +106,9 @@ def user_posts_list(request, id):
     paginator = Paginator(posts, settings.POSTS_PER_PAGE)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
-    return render(request, 'dashboard/post.html', {'page': page})
+    return render(request, 'dashboard/post.html', {
+        'page': page,
+        'site_title': 'Posts | Social Network'})
 
 
 @login_required
@@ -102,7 +117,8 @@ def dialogs(request):
     for channel in channels:
         channel.logo = channel.partner_logo(user=request.user)
     return render(request, 'dashboard/dialog_list.html', {
-        'channels': channels, 'is_block': False
+        'channels': channels, 'is_blocked': False,
+        'site_title': 'Dialogs | Social Network'
     })
 
 
@@ -111,32 +127,21 @@ def dialogs_block(request):
     for channel in channels:
         channel.logo = channel.partner_logo(user=request.user)
     return render(request, 'dashboard/dialog_list.html', {
-        'channels': channels, 'is_block': True
+        'channels': channels, 'is_block': True,
+        'site_title': 'Dialogs | Social Network'
     })
 
 
-def block_dialog(request, id):
+@login_required
+def switch_block_dialog(request, id):
     if request.method == 'POST' and request.is_ajax():
         channel = Channel.objects.get(id=id)
-        if channel.blocked == False:
-            channel.blocked = True
-            channel.save()
-            return JsonResponse({
-                'channel_id': channel.id
-            })
-    return HttpResponse(status=400)
-
-
-def unblock_dialog(request, id):
-    if request.method == 'POST' and request.is_ajax():
-        channel = Channel.objects.get(id=id)
-        if channel.blocked == True:
-            channel.blocked = False
-            channel.save()
-            return JsonResponse({
-                'channel_id': channel.id
-            })
-    return HttpResponse(status=400)
+        channel.blocked = not channel.blocked
+        channel.save()
+        return JsonResponse({
+            'channel_id': channel.id
+        })
+    return JsonResponse(status=400)
 
 
 @login_required
@@ -148,8 +153,11 @@ def dialog(request, id):
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
 
-    return render(request, 'dashboard/dialog.html', {'page': page,
-                                                     'channel_id': id})
+    return render(request, 'dashboard/dialog.html', {
+        'page': page,
+        'channel_id': id,
+        'site_title': 'Profile | Social Network'
+    })
 
 
 @login_required
@@ -163,7 +171,7 @@ def create_group_chat(request):
         return JsonResponse({
             'channel_id': channel.id
         })
-    return HttpResponse(status=400)
+    return JsonResponse(status=400)
 
 
 @login_required
@@ -188,7 +196,7 @@ def send_message(request):
                     'email': message.user.email,
                 }
             })
-    return HttpResponse(status=400)
+    return JsonResponse(status=400)
 
 
 @login_required
@@ -222,12 +230,14 @@ def messages_api(request, id):
 
 @login_required
 def posts(request):
-    return render(request, 'dashboard/posts.html')
+    return render(request, 'dashboard/posts.html',
+                  {'site_title': 'Posts | Social Network'})
 
 
 @login_required
 def news(request):
-    return render(request, 'dashboard/news_list.html')
+    return render(request, 'dashboard/news_list.html',
+                  {'site_title': 'News | Social Network'})
 
 
 @login_required
@@ -253,13 +263,18 @@ def profiles(request):
             last_name__icontains=search_query) | Q(
             birth_date__icontains=search_query) | Q(
             city__icontains=search_query))
-    return render(request, 'dashboard/profiles.html', {'profiles': users})
+    return render(request, 'dashboard/profiles.html', {
+        'profiles': users,
+        'site_title': 'Profiles | Social Network'
+    })
 
 
 @login_required
 def friends_list(request):
     friends = request.user.friends.all()
-    return render(request, 'dashboard/profile.html', {'friends': friends})
+    return render(request, 'dashboard/profile.html', {
+        'friends': friends,
+        'site_title': 'Friends | Social Network' })
 
 
 @login_required
@@ -309,9 +324,11 @@ def friend_unblock(request, user_id):
 
 @login_required
 def news_details(request):
-    return render(request, 'dashboard/news.html')
+    return render(request, 'dashboard/news.html',
+                  {'site_title': 'News | Social Network'})
 
 
 @login_required
 def setting(request):
-    return render(request, 'dashboard/setting.html')
+    return render(request, 'dashboard/setting.html',
+                  {'site_title': 'Setting | Social Network'})

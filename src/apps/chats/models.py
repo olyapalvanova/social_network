@@ -1,4 +1,6 @@
 from os import path
+from django.db.models.functions import Concat
+from django.db.models import CharField, Value as V
 
 from django.conf import settings
 from django.db import models
@@ -26,10 +28,12 @@ class Channel(models.Model):
 
     @property
     def channel_name(self):
-        name = ''
-        for i in self.users.all():
-            name += i.first_name + ' ' + i.last_name + ' '
-        return name
+        usernames = self.users.annotate(
+            full_name=Concat(
+                'first_name', V(' '), 'last_name', output_field=CharField()
+            )
+        ).all().values_list('full_name', flat=True)
+        return ' | '.join(usernames)
 
 
 class Message(models.Model):

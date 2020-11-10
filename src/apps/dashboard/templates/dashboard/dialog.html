@@ -2,24 +2,7 @@
 {% load static %}
 
 {% block body %}
-
-    <div class="pagination">
-    <span class="step-links">
-        {% if page.has_previous %}
-            <a href="?page=1">&laquo; first</a>
-            <a href="?page={{ page.previous_page_number }}">previous</a>
-        {% endif %}
-
-        <span class="current">
-            Page {{ page.number }} of {{ page.paginator.num_pages }}.
-        </span>
-
-        {% if page_obj.has_next %}
-            <a href="?page={{ page.next_page_number }}">next</a>
-            <a href="?page={{ page.paginator.num_pages }}">last &raquo;</a>
-        {% endif %}
-    </span>
-    </div>
+{% include 'common/paginator.html' %}
 
 
     <div id="messages">
@@ -54,7 +37,6 @@
     </form>
 
     <script>
-        var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
 
          $("#target").submit(function (event) {
             event.preventDefault();
@@ -69,10 +51,6 @@
                     text: $('#message').val(),
                     channel: {{ channel_id }},
                 }),
-                headers: {
-                    'Content-Type': "application/json; charset=UTF-8",
-                    "X-CSRFToken": csrftoken,
-                },
                 success: function (responseMessage) {
                     const newDiv = document.createElement("div");
                         newDiv.classList.add("media");
@@ -109,19 +87,6 @@
 
                     $('#messages').append(newDiv);
                     $('#target').trigger('reset');
-
-                    {#var send = '' +#}
-                    {#    '<div class="media text-muted pt-3">' +#}
-                    {#        '<p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">' +#}
-                    {#            '<img width="100" height="100" src="' + responseMessage.user.image + '"' +#}
-                    {#            'class="rounded float-left" alt="Responsive image" width="100%" height="100%">' +#}
-                    {#           '<strong class="d-block text-gray-dark"> <a href="{% url 'dashboard:profile' user.id %}" style="color:#000000;text-decoration:none">' +responseMessage.user.email+ '</a>' +#}
-                    {#           '</strong>'+ responseMessage.text +'</p></div>'#}
-{##}
-{#                    $(addElement).appendTo("#messages")#}
-{#                    jQuery('#target')[0].reset()#}
-
-
                 },
                 error: function (response) {
                    console.log(response);

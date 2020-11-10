@@ -1,46 +1,17 @@
+{% load static %}
 <html lang="en">
   <head>
       {% block head %}
           <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-          <script>
-              function getCookie(name) {
-                  var cookieValue = null;
-                  if (document.cookie && document.cookie !== '') {
-                      var cookies = document.cookie.split(';');
-                      for (var i = 0; i < cookies.length; i++) {
-                          var cookie = cookies[i].trim();
-                          // Does this cookie string begin with the name we want?
-                          if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                              break;
-                          }
-                      }
-                  }
-                  return cookieValue;
-              }
-
-              var csrftoken = getCookie('csrftoken');
-
-              function csrfSafeMethod(method) {
-                  // these HTTP methods do not require CSRF protection
-                  return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-              }
-
-              $.ajaxSetup({
-                  beforeSend: function (xhr, settings) {
-                      if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                          xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                      }
-                  }
-              });
-     </script>
+          <script src="{% static 'base.js'%}"></script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
     <meta name="generator" content="Jekyll v4.1.1">
-       {% url 'dashboard:profile' user.id  as profile_url %}
-    <title>{% if request.path == profile_url %}Profile | Social Network{% endif %}
+          <title>{{ site_title | default:'Social Network' }}</title>
+{#       {% url 'dashboard:profile' user.id  as profile_url %}#}
+    <!--<title>{% if request.path == profile_url %}Profile | Social Network{% endif %}
         {% url 'dashboard:news'  as profile_url %}
         {% if request.path == profile_url %}News | Social Network{% endif %}
         {% url 'dashboard:news_details'  as profile_url %}
@@ -58,7 +29,7 @@
         {% url 'dashboard:dialog' channel.id  as profile_url %}
         {% if request.path == profile_url %}Messages | Social Network{% endif %}
         {% url 'dashboard:user_posts_list' user.id  as profile_url %}
-        {% if request.path == profile_url %}Your posts | Social Network{% endif %}</title>
+        {% if request.path == profile_url %}Your posts | Social Network{% endif %}</title> -->
       <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
 

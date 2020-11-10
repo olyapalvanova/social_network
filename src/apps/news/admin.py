@@ -7,7 +7,7 @@ class OrganizationAdmin(admin.ModelAdmin):
 
 
 class NewsAdmin(admin.ModelAdmin):
-    list_display = ('name', 'date')
+    list_display = ('name', 'date_at')
 
 
 class CategoryAdmin(admin.ModelAdmin):
